@@ -1,0 +1,33 @@
+---
+title: "Data Exploration Assignment Analysis"
+author: "Kimberly Nguyen"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(fixest)
+library(ggplot2)
+```
+
+```{r}
+df %>% group_by(schname, keyword) %>% summary()
+
+r1 <- df %>% filter((str_sub(monthorweek, start = 1, end = 4) < "2015")) %>% filter(PREDDEG == 3) %>% group_by(pct10_earn_wne_p10) %>% feols(fml = ADM_RATE ~ index, data = df)
+
+r2 <- r1 <- df %>% filter((str_sub(monthorweek, start = 1, end = 4) < "2015")) %>% filter(PREDDEG == 3) %>% group_by(pct90_earn_wne_p10) %>% feols(fml = ADM_RATE ~ index, data = df)
+
+r3 <- df %>% filter((str_sub(monthorweek, start = 1, end = 4) > "2015")) %>% filter(PREDDEG == 3) %>% group_by(pct10_earn_wne_p10) %>% feols(fml = ADM_RATE ~ index, data = df)
+
+r4 <- r1 <- df %>% filter((str_sub(monthorweek, start = 1, end = 4) > "2015")) %>% filter(PREDDEG == 3) %>% group_by(pct90_earn_wne_p10) %>% feols(fml = ADM_RATE ~ index, data = df)
+
+ggplot(df, aes(x = index, y = "md_earn_wne_p10-REPORTED-EARNINGS")) + geom_point() + geom_smooth(method = 'lm')
+```
+
+In my analysis, I have four regressions to analyze the relationship between the index and admission rates to see how the release of Scorecard shifted student interest for admission rates. The first two regressions focus on admission rate before 2015, when Scorecard was not released and the second two regressions focus on admission rate after 2015, when Scorecard was released. I filter the monthorweek variable to get the year and then filter out the PREDDEG variable to 3 which selects predominantly bachelor's-degree granting schools. I then either group by 10th percentile of earnings of students working and not enrolled 10 years after entry or 90th percentile of earnings of students working and not enrolled 10 years after entry to differentiate between high-earning and low-earning. I chose the variables and pct10_earn_wne_p10 and pct90_earn_wne_p10 to define high-earning and low-earning since a definite number is hard to draw the line between what is high and low earning. 
+
+Since the research question asks if the release of the Scorecard shift student interest to high-earnings colleges relative to low-earning ones, my analysis would address admission rates in both high-earnings colleges and low-earnings colleges before and after 2015/Scorecard's release. If admission rates go up after 2015, it would be associated with the release of Scorecard. Using controls and wald() would also produce values to tests check values on wether to reject or fail to reject the hypothesizes. 
+
